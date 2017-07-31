@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<classpath>
+	<classpathentry kind="src" output="classes1.5" path="java1.5"/>
+	<classpathentry kind="var" path="JRE_LIB" rootpath="JRE_SRCROOT" sourcepath="JRE_SRC"/>
+	<classpathentry kind="con" path="/home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/jnetpcap-code/jnetpcap/trunk/build/classes1.5"/>
+	<classpathentry kind="con" path="/home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/jnetpcap-code/jnetpcap/trunk/build/tests"/>
+	<classpathentry kind="output" path="bin"/>
+</classpath>
