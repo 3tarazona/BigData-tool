@@ -13,6 +13,8 @@ import org.apache.spark.sql.Row
 //val conf = new SparkConf().setAppName(appName).setMaster(master)
 //val sc = new SparkContext(conf)
 
+/*PCAP Parser*/
+
 val filename = "/home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/dump-dns-random-12K.pcap";
 
 val pcap = Pcap.openOffline(filename, new java.lang.StringBuilder());
@@ -34,6 +36,8 @@ val handler = new PcapPacketHandler[String]() {
 
 pcap.loop(Pcap.LOOP_INFINITE, handler, "");
 
+/*Spark code*/
+
 val rdd_sources = sc.parallelize(sources);
 val rdd_conversations = sc.parallelize(ip_conversations)
 
@@ -52,6 +56,8 @@ conversationsDF.groupBy("source", "destination").count().show()
 
 conversationsDF.filter($"source".equalTo("2.5.102.210")).show()
 
+/*Entropy*/  
+
 val array = conversations_count.values.collect().toArray
 
 def calculate(counts: Array[Int], totalCount: Double): Double = {
@@ -67,7 +73,6 @@ def calculate(counts: Array[Int], totalCount: Double): Double = {
       if (classCount != 0) {
         val freq = classCount / totalCount
         impurity += -(freq * log2(freq))
-        println(impurity)
       }
       classIndex += 1
     }
