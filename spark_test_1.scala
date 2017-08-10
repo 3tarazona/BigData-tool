@@ -67,12 +67,13 @@ def calculate(counts: Array[Int], totalCount: Double): Double = {
       if (classCount != 0) {
         val freq = classCount / totalCount
         impurity += -(freq * log2(freq))
+        println(impurity)
       }
       classIndex += 1
     }
     impurity
   }
 
-  val entropy_count = calculate(array, conversations_count.count().toDouble)
+  val entropy_count = calculate(array, conversationsDF.count().toDouble)
 
 
