@@ -127,7 +127,8 @@ The easiest way to start using Spark is through the Scala shell:
 
 ## Usage
 
-    $./spark-shell --jars /path-directory/jnetpcap.jar
+    $.sudo ./spark-shell --jars /root/.m2/repository/net/ripe/hadoop/pcap/hadoop-pcap-lib/1.2-SNAPSHOT/hadoop-pcap-lib-1.2-SNAPSHOT.jar,/home/etarazona/tmp1/em/dns-input-format/target/dns-input-format-1.0-SNAPSHOT.jar,/home/etarazona/Downloads/dnsjava-2.1.8.jar
+
     scala>
 
 Create .jar file of the script:
