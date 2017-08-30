@@ -21,6 +21,13 @@ import org.apache.hadoop.mapred.JobConf
 import org.example.DnsInputFormat
 import java.lang.Math
 
+def nth(idx: Int, list: Array[String]) : String = idx match {
+        case x if x < 0 => throw new Exception("Negative index not allowed")
+        case 0 => list.head
+        case x if list.length < x + 1 => throw new Exception("Invalid index")
+        case _ => nth(idx - 1, list.tail)
+    }
+
 
 /* Entropy Function */
 def calculate_entropy(counts: Array[Int], totalCount: Double): Double = {
@@ -53,7 +60,7 @@ val array_in = input.map{case(k,v) => (k.get(),v.get().asInstanceOf[DnsPacket])}
 
 array_in.take(10).map(println)
 
-/*Calculate entropy for FQDN (without mapping with src ip)*/
+/*********Calculate entropy for FQDN (without mapping with src ip)*************/
 
 val values_dns = array_in.values.map {p => p.get("dns_qname") }
 
@@ -66,21 +73,20 @@ val array_4_entropy = values_dns_count.map(_._2).collect().toArray
 val total_count_entropy = array_4_entropy.sum
 
 
-val entropy_dns = calculate_entropy(array_4_entropy, total_count_entropy)
+val entropy_FQDN = calculate_entropy(array_4_entropy, total_count_entropy)
 
-//*************************************************
+//****************************************************************************
 
-//val values_tld = values_dns.map(_.toString) //nop 
-
-//val values_tls_pairs = values_tld.split(".")//nop
 
 /* CONDITIONAL ENTROPY */
 
 /*CONDITIONAL ENTROPY LEVEL-1*/
 
-val values_dns_string = values_dns.map(_.toString)
+val values_dns_string = values_dns.map(_.toString) // object containing FQDN converted to string 
 
-val values_dns_split = values_dns_string.map(_.split('.'))
+val values_dns_split = values_dns_string.map(_.split('.')) // split by .
+
+val dns_tld = values_dns_split.map(s => s.last)
 
 val dns_sld = values_dns_split.map(s => s(1))
 
@@ -90,55 +96,49 @@ val dns_sld_array = dns_sld_count.map(_._2).collect().toArray
 
 val dns_sld_total = dns_sld_array.sum
 
+
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+// Ratio de todos los valores .com
+
+val tld = dns_sld.filter(_.startsWith("com"))
+val tld_count = tld.count
+val px =  tld_count.toDouble/dns_sld_total
+
+// Array de valores example.com, arbol.com, tienda.com...etc 
+
+val sld = values_dns_string.filter(_.endsWith(".com"))
+val sld_count = sld.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
+
+val sld_count_array = sld_count.map(_._2).collect().toArray
+
+
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
+
 /*H(Y|X) = - sum [p(x) * H(Y|X=x)] */
 
-/*Ratio SLD : p(x) */
 
-def entropy_conditional(counts_y: Array[Int], totalCount_y: Double, counts_x: Array[Int], totalCount_x: Double): Double = {
-    if (totalCount_y == 0 || totalCount_x == 0) {
+def entropy_conditional(counts_y: Array[Int], p_x: Double, totalCount: Double): Double = {
+    if (totalCount == 0) {
       return 0
     }
     def log2(x: Double) = scala.math.log(x) / scala.math.log(2)
-    val numClasses_y = counts_y.length
-    val numClasses_x = counts_x.length
+
+    val numClasses = counts_y.length
     var impurity = 0.0
     var classIndex_y = 0
-    var classIndex_x = 0
 
-    while (classIndex_y < numClasses_y) {
+    while (classIndex_y < numClasses) {
       val classCount_y = counts_y(classIndex_y)
       if (classCount_y != 0 ) {
-        val array_freq_y: Array[Double] = classCount_y/totalCount_y
+        val freq_y_x = classCount_y / (totalCount * p_x)
+        impurity += -(freq_y_x * log2(freq_y_x))
       }
       classIndex_y += 1
     }
-    array_freq_y
-
-    while (classIndex_x < numClasses_x) {
-      val classCount_x = counts_x(classIndex_x)
-      if (classCount_x != 0 ) {
-        val array_freq_x = classCount_x/totalCount_x
-      }  
-      classIndex_x += 1
-    }
-    array_freq_x
-
-    val smallest = Math.min(array_freq_y.length, array_freq_x.length)
-
-    val index = 0
-    while(index < smallest) {
-        
-      val freq = array_freq_y/array_freq_x
-
-      impurity += -(freq * log2(freq))
-    
-      index += 1
-    }
-
-    impurity
+  impurity
 }
 
-
+val conditional_entropy = entropy_conditional(sld_count_array, px, dns_sld_total)
 
 
 
