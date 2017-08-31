@@ -21,6 +21,8 @@ import org.apache.hadoop.mapred.JobConf
 import org.example.DnsInputFormat
 import java.lang.Math
 
+/*Function to take the nth value in a list/Array*/
+
 def nth(idx: Int, list: Array[String]) : String = idx match {
         case x if x < 0 => throw new Exception("Negative index not allowed")
         case 0 => list.head
@@ -88,7 +90,7 @@ val values_dns_split = values_dns_string.map(_.split('.')) // split by .
 
 val dns_tld = values_dns_split.map(s => s.last)
 
-val dns_sld = values_dns_split.map(s => s(1))
+val dns_sld = values_dns_split.filter(_.length < 3).map(_.mkString("."))
 
 val dns_sld_count = dns_sld.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
 
@@ -100,13 +102,13 @@ val dns_sld_total = dns_sld_array.sum
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 // Ratio de todos los valores .com
 
-val tld = dns_sld.filter(_.startsWith("com"))
+val tld = dns_tld.filter(_.startsWith("com"))
 val tld_count = tld.count
-val px =  tld_count.toDouble/dns_sld_total
+val px =  tld_count.toDouble/values_dns.count
 
 // Array de valores example.com, arbol.com, tienda.com...etc 
 
-val sld = values_dns_string.filter(_.endsWith(".com"))
+val sld = dns_sld.filter(_.endsWith(".com"))
 val sld_count = sld.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
 
 val sld_count_array = sld_count.map(_._2).collect().toArray
@@ -114,7 +116,6 @@ val sld_count_array = sld_count.map(_._2).collect().toArray
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
-/*H(Y|X) = - sum [p(x) * H(Y|X=x)] */
 
 
 def entropy_conditional(counts_y: Array[Int], p_x: Double, totalCount: Double): Double = {
@@ -138,7 +139,7 @@ def entropy_conditional(counts_y: Array[Int], p_x: Double, totalCount: Double): 
   impurity
 }
 
-val conditional_entropy = entropy_conditional(sld_count_array, px, dns_sld_total)
+val conditional_entropy_com = entropy_conditional(sld_count_array, px, dns_sld_total)
 
 
 
