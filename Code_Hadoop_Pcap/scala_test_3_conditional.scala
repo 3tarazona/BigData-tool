@@ -5,6 +5,7 @@ import org.apache.spark.SparkConf
 import org.apache.spark.sql.types._
 import org.apache.spark.sql.Row
 import org.apache.spark.sql.SQLImplicits
+import org.apache.spark.rdd.RDD
 
 import net.ripe.hadoop.pcap.io.PcapInputFormat
 import net.ripe.hadoop.pcap.packet.Packet
@@ -32,7 +33,7 @@ def nth(idx: Int, list: Array[String]) : String = idx match {
 
 
 /* Entropy Function */
-def calculate_entropy(counts: Array[Int], totalCount: Double): Double = {
+def calculate_entropy(counts: Array[Double], totalCount: Double): Double = {
     if (totalCount == 0) {
       return 0
     }
@@ -62,6 +63,7 @@ val array_in = input.map{case(k,v) => (k.get(),v.get().asInstanceOf[DnsPacket])}
 
 array_in.take(10).map(println)
 
+
 /*********Calculate entropy for FQDN (without mapping with src ip)*************/
 
 val values_dns = array_in.values.map {p => p.get("dns_qname") }
@@ -70,7 +72,7 @@ values_dns.take(20)
 
 val values_dns_count = values_dns.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
 
-val array_4_entropy = values_dns_count.map(_._2).collect().toArray
+val array_4_entropy = values_dns_count.map(_._2).collect().toArray.map(_.toDouble)
 
 val total_count_entropy = array_4_entropy.sum
 
@@ -82,71 +84,44 @@ val entropy_FQDN = calculate_entropy(array_4_entropy, total_count_entropy)
 
 /* CONDITIONAL ENTROPY */
 
-/*CONDITIONAL ENTROPY LEVEL-1*/
 
 val values_dns_string = values_dns.map(_.toString) // object containing FQDN converted to string 
 
 val values_dns_split = values_dns_string.map(_.split('.')) // split by .
 
-val dns_tld = values_dns_split.map(s => s.last)
 
-val dns_sld = values_dns_split.filter(_.length < 3).map(_.mkString("."))
+def conditional_entropy(domain_names:org.apache.spark.rdd.RDD[Array[String]], label: String): Double = {
 
-val dns_sld_count = dns_sld.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
+  val label_split = label.split('.')
+    
+  val label_length = label_split.length //domain level for X 
 
-val dns_sld_array = dns_sld_count.map(_._2).collect().toArray
+  val array_fil_y = domain_names.filter(_.length > label_length) // filter to get just the entries with a "SLD" for previous"TLD"
 
-val dns_sld_total = dns_sld_array.sum
+  val array_y = array_fil_y.filter(_.containsSlice(label_split))
 
+  val array_y_reverse = array_y.map(_.reverse)
+  val kplus_values = array_y_reverse.map(s => s(label_length))
+  val py_count = kplus_values.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
+  val py = py_count.map(_._2).collect.toArray
+  val count_y_total = array_y.count
+  val py_array = py.map(s => s.toDouble/count_y_total)
 
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-// Ratio de todos los valores .com
+  val px = count_y_total.toDouble/domain_names.count
 
-val tld = dns_tld.filter(_.startsWith("com"))
-val tld_count = tld.count
-val px =  tld_count.toDouble/values_dns.count
+  calculate_entropy(py_array, px)
 
-// Array de valores example.com, arbol.com, tienda.com...etc 
-
-val sld = dns_sld.filter(_.endsWith(".com"))
-val sld_count = sld.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
-
-val sld_count_array = sld_count.map(_._2).collect().toArray
-
-
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
-
-
-def entropy_conditional(counts_y: Array[Int], p_x: Double, totalCount: Double): Double = {
-    if (totalCount == 0) {
-      return 0
-    }
-    def log2(x: Double) = scala.math.log(x) / scala.math.log(2)
-
-    val numClasses = counts_y.length
-    var impurity = 0.0
-    var classIndex_y = 0
-
-    while (classIndex_y < numClasses) {
-      val classCount_y = counts_y(classIndex_y)
-      if (classCount_y != 0 ) {
-        val freq_y_x = classCount_y / (totalCount * p_x)
-        impurity += -(freq_y_x * log2(freq_y_x))
-      }
-      classIndex_y += 1
-    }
-  impurity
 }
 
-val conditional_entropy_com = entropy_conditional(sld_count_array, px, dns_sld_total)
+conditional_entropy(values_dns_split, "kayak.org")
+
+
+/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
 
 
 
-
-
-
-/* Calculate entropy for aggregated level-0 (FQDN) mapping with src ip */
+/* ******************************************************************
+Calculate entropy for aggregated level-0 (FQDN) mapping with src ip 
 
 val src_dnsqname = array_in.values.map {p => (p.get("src"), p.get("dns_qname")) }
 
@@ -178,27 +153,7 @@ val dnsqname_array_entropy = dnsqname_count.map(_._2).collect().toArray
 
 val total_dnsqname_entropy = dnsqname_array_entropy.sum
 
+****************************************************************************/
 
-
-
- // val sqlContext = new SQLContext(sc)
- // import sqlContext.implicits._
-
-// array_in.toDF()
-
-//val fields = StructType(Array("dns_additional", "dst", "ip_flags_df", "ip_header_length", "protocol", "ip_version", "len", "dns_opcode", "dns_qname", "dns_authority", "id", "dns_qr", "dns_qtype", "fragment_offset", "dns_flags", "src", "udp_length", "ttl", "dns_answer", "src_port", "fragment", "dns_question", "dns_queryid", "dns_rcode", "udp_sum", "dst_port", "ts_usec", "ip_flagsmf", "ts", "ts_micros").map( StructField(_, StringType, nullable = false )))
-
-//val array_in_Row = array_in.map( (f,v) => Row(f._1, f._2, f._3, f._4, f._5, f._6, f._7, f._8, f._9, f._10, f._11, f._12, f._13, f._14, f._15, f._16, f._17, f._18, f._19, f._20, f._21, f._22, f._23, f._24, f._25, f._26, f._28, f._28, f._29, f._30) )
-
-// val fields = StructType(Array("dns_qname").map( StructField(_, StringType, nullable = false )))
-
-// val arra_in_Row = array_in.map( (f) => Row(f._1.getAs[String]("dns_qname"), f._2) )
-
-// val array_in_DF = spark.createDataFrame(array_in_Row, fields)
-
-
-// key_values.filter($"dns_qname").show()
-
-// array_in.map { case (k, v) => (k, v._2, v._1.split('.')(1), v._1.split(',')(3)) }
 
   
