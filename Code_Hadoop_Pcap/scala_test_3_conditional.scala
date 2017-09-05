@@ -90,9 +90,52 @@ val values_dns_string = values_dns.map(_.toString) // object containing FQDN con
 val values_dns_split = values_dns_string.map(_.split('.')) // split by .
 
 
-def conditional_entropy(domain_names:org.apache.spark.rdd.RDD[Array[String]], label: String): Double = {
+def conditional_entropy(domain_names:org.apache.spark.rdd.RDD[Array[String]], k: Int): Double = {
 
-  val label_split = label.split('.')
+  val dns_filter = domain_names.filter(_.length > k)
+
+  val py = dns_filter.map(_.mkstring('.'))
+
+  val py_count = py.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
+
+  val py_array = py_count.map(_._2).collect.toArray
+
+  val dns_filter_reverse = dns_filter.map(_.reverse)
+
+  val px = dns_filter_reverse.map(s => s.slice(0,k))
+
+  val px_mk = px.map(_.reverse).map(_.mkString("."))
+
+  val px_count = px_mk.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
+
+  val px_array = px_count.map(_._2).collect.toArray
+
+  val filter_y = py_count.map(s => (s._1.reverse, s._2))
+
+  val filter_y_2 = filter_y.map(s => (s._1.split('.'), s._2))
+
+  val filter_y_3 = filter_y_2.map(s => (s._1.slice(0,k), s._2))
+
+  val filter_y_4 = filter_y_3.map(s => (s._1.mkString("."), s._2))
+
+  val filter_y_5 = filter_y_4.map(s => (s._1.reverse, s._2))
+
+  //*************************************************************************************************
+
+  val py_count_k = py_count.map { t => (t._1.split('.').slice(1, 1000).mkString("."), (t._1, t._2)) }
+
+  val py_px = py_count_k.join(px_count)
+
+  val py_px_impurity = py_px.map { r => ( r._1, r._2._1._1, (r._2._1._2.toDouble/r._2._2)*scala.math.log(r._2._1._2.toDouble/r._2._2)/scala.math.log(2) ) }
+
+  val py_px_entropy = py_px_impurity.aggregate(Map[String, Double]())( (acc, r) => acc + ( r._1 -> ( acc.getOrElse(r._1, 0.0) + r._3 ) ), (acc, m) => m.foldRight(acc)( (kv, acc2) => acc2 + (kv._1 -> (kv._2 + acc2.getOrElse(kv._1, 0.0)))))
+
+
+
+val entropy_py_px = py_count_k.join(px_count).map { r => ( r._2._1._1, calculate_entropy(r._2._1._2.toDouble, r._2._2) ) }
+
+
+
     
   val label_length = label_split.length //domain level for X 
 
