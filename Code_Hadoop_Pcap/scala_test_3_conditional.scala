@@ -31,6 +31,17 @@ def nth(idx: Int, list: Array[String]) : String = idx match {
         case _ => nth(idx - 1, list.tail)
     }
 
+def impurity(py: Double, px: Int) : Double = {
+    if (px == 0) {
+      return 0
+    }
+    var impur = 0.0
+    def log2(x: Double) = scala.math.log(x) / scala.math.log(2)
+    val freq = py / px
+    impur += -(freq * log2(freq))
+  impur
+} 
+
 
 /* Entropy Function */
 def calculate_entropy(counts: Array[Double], totalCount: Double): Double = {
@@ -61,7 +72,7 @@ val input = sc.hadoopFile(folder, classOf[DnsInputFormat], classOf[LongWritable]
 
 val array_in = input.map{case(k,v) => (k.get(),v.get().asInstanceOf[DnsPacket])}
 
-array_in.take(10).map(println)
+//array_in.take(10).map(println)
 
 
 /*********Calculate entropy for FQDN (without mapping with src ip)*************/
@@ -90,73 +101,40 @@ val values_dns_string = values_dns.map(_.toString) // object containing FQDN con
 val values_dns_split = values_dns_string.map(_.split('.')) // split by .
 
 
-def conditional_entropy(domain_names:org.apache.spark.rdd.RDD[Array[String]], k: Int): Double = {
+def conditional_entropy(domain_names:org.apache.spark.rdd.RDD[Array[String]], k: Int): scala.collection.immutable.Map[String,Double] = {
 
-  val dns_filter = domain_names.filter(_.length > k)
+    val dns_filter = domain_names.filter(_.length > k)
 
-  val py = dns_filter.map(_.mkstring('.'))
+    val py = dns_filter.map(_.mkString("."))
 
-  val py_count = py.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
+    val py_count = py.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
 
-  val py_array = py_count.map(_._2).collect.toArray
+    //val py_array = py_count.map(_._2).collect.toArray
 
-  val dns_filter_reverse = dns_filter.map(_.reverse)
+    val dns_filter_reverse = dns_filter.map(_.reverse)
 
-  val px = dns_filter_reverse.map(s => s.slice(0,k))
+    val px = dns_filter_reverse.map(s => s.slice(0,k))
 
-  val px_mk = px.map(_.reverse).map(_.mkString("."))
+    val px_mk = px.map(_.reverse).map(_.mkString("."))
 
-  val px_count = px_mk.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
+    val px_count = px_mk.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
 
-  val px_array = px_count.map(_._2).collect.toArray
+    //val px_array = px_count.map(_._2).collect.toArray
 
-  val filter_y = py_count.map(s => (s._1.reverse, s._2))
+    val py_count_k = py_count.map { t => (t._1.split('.').reverse.slice(0, k).reverse.mkString("."), (t._1, t._2)) }
 
-  val filter_y_2 = filter_y.map(s => (s._1.split('.'), s._2))
+    val py_px = py_count_k.join(px_count)
 
-  val filter_y_3 = filter_y_2.map(s => (s._1.slice(0,k), s._2))
+    val py_px_impurity = py_px.map { r => ( r._1, r._2._1._1, impurity(r._2._1._2.toDouble, r._2._2) ) }
 
-  val filter_y_4 = filter_y_3.map(s => (s._1.mkString("."), s._2))
+    val py_px_entropy = py_px_impurity.aggregate(Map[String, Double]())( (acc, r) => acc + ( r._1 -> ( acc.getOrElse(r._1, 0.0) + r._3 ) ), (acc, m) => m.foldRight(acc)( (kv, acc2) => acc2 + (kv._1 -> (kv._2 + acc2.getOrElse(kv._1, 0.0)))))
+    val result = py_px_entropy.take(10)
+  result
+} 
 
-  val filter_y_5 = filter_y_4.map(s => (s._1.reverse, s._2))
-
-  //*************************************************************************************************
-
-  val py_count_k = py_count.map { t => (t._1.split('.').slice(1, 1000).mkString("."), (t._1, t._2)) }
-
-  val py_px = py_count_k.join(px_count)
-
-  val py_px_impurity = py_px.map { r => ( r._1, r._2._1._1, (r._2._1._2.toDouble/r._2._2)*scala.math.log(r._2._1._2.toDouble/r._2._2)/scala.math.log(2) ) }
-
-  val py_px_entropy = py_px_impurity.aggregate(Map[String, Double]())( (acc, r) => acc + ( r._1 -> ( acc.getOrElse(r._1, 0.0) + r._3 ) ), (acc, m) => m.foldRight(acc)( (kv, acc2) => acc2 + (kv._1 -> (kv._2 + acc2.getOrElse(kv._1, 0.0)))))
+val entropy_test = conditional_entropy(values_dns_split, 2)
 
 
-
-val entropy_py_px = py_count_k.join(px_count).map { r => ( r._2._1._1, calculate_entropy(r._2._1._2.toDouble, r._2._2) ) }
-
-
-
-    
-  val label_length = label_split.length //domain level for X 
-
-  val array_fil_y = domain_names.filter(_.length > label_length) // filter to get just the entries with a "SLD" for previous"TLD"
-
-  val array_y = array_fil_y.filter(_.containsSlice(label_split))
-
-  val array_y_reverse = array_y.map(_.reverse)
-  val kplus_values = array_y_reverse.map(s => s(label_length))
-  val py_count = kplus_values.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
-  val py = py_count.map(_._2).collect.toArray
-  val count_y_total = array_y.count
-  val py_array = py.map(s => s.toDouble/count_y_total)
-
-  val px = count_y_total.toDouble/domain_names.count
-
-  calculate_entropy(py_array, px)
-
-}
-
-conditional_entropy(values_dns_split, "kayak.org")
 
 
 /*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
