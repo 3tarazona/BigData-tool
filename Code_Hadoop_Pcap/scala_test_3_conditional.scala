@@ -114,6 +114,11 @@ def conditional_entropy(domain_names:org.apache.spark.rdd.RDD[Array[String]], k:
 
 val entropy_test = conditional_entropy(values_dns_split, 2)
 
+/*Save to a ext file*/
+
+val array_e = entropy_test.toArray
+val rdd = sc.parallelize(array_e)
+rdd.repartition(1).saveAsTextFile("/home/etarazona/Downloads/conditional_entropy")
 
 /* ******************************************************************
 Calculate entropy for aggregated level-0 (FQDN) mapping with src ip 

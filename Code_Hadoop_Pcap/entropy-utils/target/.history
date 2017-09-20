@@ -1,0 +1,6 @@
+compile; package; publish-local
+compile;package; publish-local
+compile;package;publish-local
+publish
+publish-local
+exit
