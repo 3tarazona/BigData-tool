@@ -21,6 +21,7 @@ import org.apache.hadoop.mapred.FileInputFormat
 import org.apache.hadoop.mapred.JobConf
 import org.example.DnsInputFormat
 import java.lang.Math
+import org.apache.spark.mllib.tree.impurity._
 
 /*Function to take the nth value in a list/Array*/
 
@@ -43,27 +44,6 @@ def impurity(py: Double, px: Int) : Double = {
 } 
 
 
-/* Entropy Function */
-def calculate_entropy(counts: Array[Double], totalCount: Double): Double = {
-    if (totalCount == 0) {
-      return 0
-    }
-    def log2(x: Double) = scala.math.log(x) / scala.math.log(2)
-    val numClasses = counts.length
-    var impurity = 0.0
-    var classIndex = 0
-    while (classIndex < numClasses) {
-      val classCount = counts(classIndex)
-      if (classCount != 0) {
-        val freq = classCount / totalCount
-        impurity += -(freq * log2(freq))
-      }
-      classIndex += 1
-    }
-    impurity
-  }
-
-
 /*Open and read the files*/
 
 val folder = "/home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/pcapsfiles"
@@ -83,12 +63,12 @@ values_dns.take(20)
 
 val values_dns_count = values_dns.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
 
-val array_4_entropy = values_dns_count.map(_._2).collect().toArray.map(_.toDouble)
+val array_4_entropy = values_dns_count.map(_._2).collect().map(_.toDouble)
 
 val total_count_entropy = array_4_entropy.sum
 
 
-val entropy_FQDN = calculate_entropy(array_4_entropy, total_count_entropy)
+val entropy_FQDN = Entropy.calculate(array_4_entropy, total_count_entropy)
 
 //****************************************************************************
 
@@ -135,12 +115,6 @@ def conditional_entropy(domain_names:org.apache.spark.rdd.RDD[Array[String]], k:
 val entropy_test = conditional_entropy(values_dns_split, 2)
 
 
-
-
-/*++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++++*/
-
-
-
 /* ******************************************************************
 Calculate entropy for aggregated level-0 (FQDN) mapping with src ip 
 
@@ -153,26 +127,6 @@ val src_array_entropy = src_dnsqname_count.map(_._2).collect().toArray
 val total_src_entropy = src_array_entropy.sum
 
 val entropy_src_dns = calculate_entropy(src_array_entropy, total_src_entropy)
-
-
-/*Calculate entropy for Aggregated Level-2*/
-
-
-/* Calculate entropy for Non-Aggregated Level-0: H(D0) = H(D1) + H(D0/H(D1)) */
-
-val src_dnsqname = array_in.values.map {p => (p.get("src"), p.get("dns_qname")) }
-
-val dnsqname_string = src_dnsqname.map{case(k,v) => (k, v.toString)}
-
-val dnsqname_split = dnsqname_string.map{case(k,v) => (k, v.split('.'))}
-
-val dnsqname_tld = dnsqname_split.map{case(k,v) => (k, v(1))}
-
-val dnsqname_count = dnsqname_tld.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
-
-val dnsqname_array_entropy = dnsqname_count.map(_._2).collect().toArray
-
-val total_dnsqname_entropy = dnsqname_array_entropy.sum
 
 ****************************************************************************/
 
