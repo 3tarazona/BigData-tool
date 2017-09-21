@@ -48,7 +48,8 @@ object Script {
 
             /*********Calculate entropy for FQDN (without mapping with src ip)*************/
 
-            val values_dns = array_in.values.map {p => p.get("dns_qname") }
+            val result = array_in.values.map {p => p.get("dns_qname") }
+            val values_dns = result.filter(_ != null)
 
             values_dns.take(20)
 

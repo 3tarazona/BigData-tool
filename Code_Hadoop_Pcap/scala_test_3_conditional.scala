@@ -23,6 +23,16 @@ import org.example.DnsInputFormat
 import java.lang.Math
 import org.apache.spark.mllib.tree.impurity._
 
+
+import org.apache.spark._
+import org.apache.hadoop.io._
+import net.ripe.hadoop._
+import org.example.DnsInputFormat
+import org.apache.spark.mllib.tree.impurity._
+import net.ripe.hadoop.pcap.io.PcapInputFormat
+import net.ripe.hadoop.pcap.packet.Packet
+import net.ripe.hadoop.pcap.packet.DnsPacket
+
 /*Function to take the nth value in a list/Array*/
 
 def nth(idx: Int, list: Array[String]) : String = idx match {
@@ -57,7 +67,8 @@ val array_in = input.map{case(k,v) => (k.get(),v.get().asInstanceOf[DnsPacket])}
 
 /*********Calculate entropy for FQDN (without mapping with src ip)*************/
 
-val values_dns = array_in.values.map {p => p.get("dns_qname") }
+val result = array_in.values.map {p => p.get("dns_qname") }
+val values_dns = result.filter(_ != null)
 
 values_dns.take(20)
 
@@ -114,7 +125,7 @@ def conditional_entropy(domain_names:org.apache.spark.rdd.RDD[Array[String]], k:
 
 val entropy_test = conditional_entropy(values_dns_split, 2)
 
-/*Save to a ext file*/
+/*Save to file*/
 
 val array_e = entropy_test.toArray
 val rdd = sc.parallelize(array_e)
@@ -131,7 +142,7 @@ val src_array_entropy = src_dnsqname_count.map(_._2).collect().toArray
 
 val total_src_entropy = src_array_entropy.sum
 
-val entropy_src_dns = calculate_entropy(src_array_entropy, total_src_entropy)
+val entropy_src_dns = Entropy.calculate(src_array_entropy, total_src_entropy)
 
 ****************************************************************************/
 
