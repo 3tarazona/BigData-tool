@@ -49,3 +49,6 @@ compile
 exit
 compile
 exit
+publish-local
+exit
+publish-local

@@ -31,7 +31,7 @@ object Script {
   def main(args: Array[String]): Unit = {
     
   
-        if (args.length > 1){
+        if (args.length > 2){
           /*Open and read the files*/
 
             val conf = new SparkConf().setAppName("script").setMaster("local")
@@ -84,9 +84,9 @@ object Script {
 
 	  val array_e = entropy_test.toArray
           val rdd = sc.parallelize(array_e)
-          rdd.repartition(1).saveAsTextFile("/home/etarazona/Downloads/conditional_entropy")
+          rdd.repartition(1).saveAsTextFile(args(2))
             
       }  
-      else {println("Bad Arguments")}
+      else {println("You must enter 3 arguments: Path-to-pcapfiles Level-to-calculate-CondEntropy Path-to-output")}
   }
 }
