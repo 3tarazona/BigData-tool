@@ -57,14 +57,16 @@ object Script {
 
             val values_dns_count = values_dns.map((_, 1)).aggregateByKey(0)( (n,v) => n+v, (n1,p) => n1+p)
 
-            val array_4_entropy = values_dns_count.map(_._2).collect().toArray.map(_.toDouble)
+            val array_4_entropy = values_dns_count.map(_._2).collect().map(_.toDouble)
 
             val total_count_entropy = array_4_entropy.sum
 
 
             val entropy_FQDN = Entropy.calculate(array_4_entropy, total_count_entropy)
+	    println("\n")
 
             println("FQDN ENtropy: " + entropy_FQDN)
+	    println("\n")
 
           //****************************************************************************
 
@@ -79,13 +81,13 @@ object Script {
          
         
           val entropy_test = ConditionalEntropy.calculate(values_dns_split, args(1).toInt)
-          
-	  println("Conditional Entropy:")
 
 	  val array_e = entropy_test.toArray
           val rdd = sc.parallelize(array_e)
 	  val toprint = rdd.takeOrdered(10)(Ordering[Double].reverse.on{x => x._2})
+	  println("CONDITIONAL ENTROPY:")
 	  toprint.map(println)
+	  println("TOTAL NUMBER OF PACKETS:" + total_count_entropy)
 	  val rdd_s = sc.parallelize(toprint)
           rdd_s.repartition(1).saveAsTextFile(args(2))
             
