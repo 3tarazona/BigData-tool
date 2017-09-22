@@ -1,4 +1,0 @@
-set nexit
-exit
-set name := "script-sbt"
-exit
