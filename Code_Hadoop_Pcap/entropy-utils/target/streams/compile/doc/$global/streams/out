@@ -1,30 +1,5 @@
 [0m[[0minfo[0m] [0mMain Scala API documentation to /home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/entropy-utils/target/scala-2.11/api...[0m
 [0m[[0mdebug[0m] [0mGetting org.scala-sbt:compiler-interface:0.13.16:component from component compiler for Scala 2.11.11[0m
-[0m[[0minfo[0m] [0m'compiler-interface' not yet compiled for Scala 2.11.11. Compiling...[0m
-[0m[[0mdebug[0m] [0mPlain interface to Scala compiler 2.11.11  with arguments: [0m
-[0m[[0mdebug[0m] [0m	-nowarn[0m
-[0m[[0mdebug[0m] [0m	-d[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_4c5491a5[0m
-[0m[[0mdebug[0m] [0m	-bootclasspath[0m
-[0m[[0mdebug[0m] [0m	/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/resources.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/rt.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/sunrsasign.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jsse.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jce.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/charsets.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/lib/jfr.jar:/usr/lib/jvm/java-8-openjdk-amd64/jre/classes:/home/etarazona/.ivy2/cache/org.scala-lang/scala-library/jars/scala-library-2.11.11.jar[0m
-[0m[[0mdebug[0m] [0m	-classpath[0m
-[0m[[0mdebug[0m] [0m	/home/etarazona/.sbt/boot/scala-2.10.6/org.scala-sbt/sbt/0.13.16/xsbti/interface-0.13.16.jar:/tmp/sbt_2eb4ad2c/srcs/org.scala-sbt/compiler-interface/compiler-interface-0.13.16-sources.jar:/home/etarazona/.ivy2/cache/org.scala-lang/scala-compiler/jars/scala-compiler-2.11.11.jar:/home/etarazona/.ivy2/cache/org.scala-lang/scala-reflect/jars/scala-reflect-2.11.11.jar:/home/etarazona/.ivy2/cache/org.scala-lang.modules/scala-xml_2.11/bundles/scala-xml_2.11-1.0.5.jar:/home/etarazona/.ivy2/cache/org.scala-lang.modules/scala-parser-combinators_2.11/bundles/scala-parser-combinators_2.11-1.0.4.jar:/home/etarazona/.ivy2/cache/jline/jline/jars/jline-2.14.3.jar[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/API.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/Analyzer.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/Command.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/Compat.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/CompilerInterface.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/ConsoleInterface.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/DelegatingReporter.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/Dependency.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/ExtractAPI.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/ExtractUsedNames.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/GlobalHelpers.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/LocateClassFile.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/Log.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/Message.scala[0m
-[0m[[0mdebug[0m] [0m	/tmp/sbt_7a528053/xsbt/ScaladocInterface.scala[0m
-[0m[[0minfo[0m] [0m  Compilation completed in 12.859 s[0m
 [0m[[0mdebug[0m] [0mCalling Scaladoc with arguments:[0m
 [0m[[0mdebug[0m] [0m	-d[0m
 [0m[[0mdebug[0m] [0m	/home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/entropy-utils/target/scala-2.11/api[0m

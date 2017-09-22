@@ -82,11 +82,12 @@ object Script {
           
 	  println("Conditional Entropy:")
 
-	  entropy_test.take(10).map(println)
-
 	  val array_e = entropy_test.toArray
           val rdd = sc.parallelize(array_e)
-          rdd.repartition(1).saveAsTextFile(args(2))
+	  val toprint = rdd.takeOrdered(10)(Ordering[Double].reverse.on{x => x._2})
+	  toprint.map(println)
+	  val rdd_s = sc.parallelize(toprint)
+          rdd_s.repartition(1).saveAsTextFile(args(2))
             
       }  
       else {println("You must enter 3 arguments: Path-to-pcapfiles Level-to-calculate-CondEntropy Path-to-output")}
