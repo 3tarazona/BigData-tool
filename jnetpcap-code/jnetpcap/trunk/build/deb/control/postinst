@@ -1,6 +1,0 @@
-#!/bin/sh
-
-ln -s /usr/lib/libjnetpcap.so.1.4.r1450 /usr/lib/libjnetpcap.so
-ln -s /usr/share/java/jnetpcap-1.4.r1450.jar /usr/share/java/jnetpcap.jar
-
-exit 0
