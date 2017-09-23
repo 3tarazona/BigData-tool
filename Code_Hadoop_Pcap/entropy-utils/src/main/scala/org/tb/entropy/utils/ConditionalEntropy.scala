@@ -1,3 +1,11 @@
+/********************************************************************************
+ * Copyright 2017 IMT-Atlantique Bretagne-Pays de la Loire École de Mines-Télécom
+ * Copyright Erika TARAZONA <tarazona.castillo@gmail.com>
+ *******************************************************/
+
+
+ 
+
 package org.tb.entropy.utils
 
 

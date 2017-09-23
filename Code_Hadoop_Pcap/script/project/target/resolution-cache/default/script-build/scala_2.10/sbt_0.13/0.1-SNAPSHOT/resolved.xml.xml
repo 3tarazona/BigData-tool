@@ -4,7 +4,7 @@
 		module="script-build"
 		revision="0.1-SNAPSHOT"
 		status="integration"
-		publication="20170919002117"
+		publication="20170923004308"
 		e:sbtVersion="0.13" e:scalaVersion="2.10"
 	>
 		<description>

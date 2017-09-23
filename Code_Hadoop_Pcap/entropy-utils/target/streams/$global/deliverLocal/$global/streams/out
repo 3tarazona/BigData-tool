@@ -1,4 +1,4 @@
-[0m[[0minfo[0m] [0m:: delivering :: org.tb.entropy#entropy-utils_2.11;1.0.0 :: 1.0.0 :: release :: Fri Sep 22 10:45:15 CEST 2017[0m
-[0m[[0mdebug[0m] [0m	options = status=release pubdate=Fri Sep 22 10:45:15 CEST 2017 validate=true resolveDynamicRevisions=true merge=true resolveId=null pubBranch=null[0m
+[0m[[0minfo[0m] [0m:: delivering :: org.tb.entropy#entropy-utils_2.11;1.0.0 :: 1.0.0 :: release :: Sat Sep 23 00:47:20 CEST 2017[0m
+[0m[[0mdebug[0m] [0m	options = status=release pubdate=Sat Sep 23 00:47:20 CEST 2017 validate=true resolveDynamicRevisions=true merge=true resolveId=null pubBranch=null[0m
 [0m[[0minfo[0m] [0m	delivering ivy file to /home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/entropy-utils/target/scala-2.11/ivy-1.0.0.xml[0m
-[0m[[0mdebug[0m] [0m	deliver done (115ms)[0m
+[0m[[0mdebug[0m] [0m	deliver done (162ms)[0m

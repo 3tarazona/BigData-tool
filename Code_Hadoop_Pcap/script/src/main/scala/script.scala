@@ -1,5 +1,9 @@
+/********************************************************************************
+ * Copyright 2017 IMT-Atlantique Bretagne-Pays de la Loire École de Mines-Télécom
+ * Copyright Erika TARAZONA <tarazona.castillo@gmail.com>
+ *******************************************************/
 
-import java.io.File
+
 import org.apache.spark.SparkContext
 import org.apache.spark.SparkConf
 import org.apache.spark.sql.types._
@@ -64,8 +68,7 @@ object Script {
 
             val entropy_FQDN = Entropy.calculate(array_4_entropy, total_count_entropy)
 	    println("\n")
-
-            println("FQDN ENtropy: " + entropy_FQDN)
+            println("FQDN ENTROPY: " + entropy_FQDN)
 	    println("\n")
 
           //****************************************************************************
@@ -85,13 +88,15 @@ object Script {
 	  val array_e = entropy_test.toArray
           val rdd = sc.parallelize(array_e)
 	  val toprint = rdd.takeOrdered(10)(Ordering[Double].reverse.on{x => x._2})
+	  println("\n")
 	  println("CONDITIONAL ENTROPY:")
 	  toprint.map(println)
 	  println("TOTAL NUMBER OF PACKETS:" + total_count_entropy)
+	  println("\n")
 	  val rdd_s = sc.parallelize(toprint)
           rdd_s.repartition(1).saveAsTextFile(args(2))
             
       }  
-      else {println("You must enter 3 arguments: Path-to-pcapfiles Level-to-calculate-CondEntropy Path-to-output")}
+      else {println("You must enter 3 arguments: Path_to_pcapfiles Level-to-compute-CondEntropy Path_to_output")}
   }
 }

@@ -6009,7 +6009,7 @@
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-sbt#template-resolver;0.1!template-resolver.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.scala-lang#jline;2.10.6!jline.jar[0m
 [0m[[0mdebug[0m] [0m	[NOT REQUIRED] org.fusesource.jansi#jansi;1.4!jansi.jar[0m
-[0m[[0mdebug[0m] [0m:: resolution report :: resolve 1887ms :: artifacts dl 54ms[0m
+[0m[[0mdebug[0m] [0m:: resolution report :: resolve 2826ms :: artifacts dl 54ms[0m
 [0m[[0mdebug[0m] [0m	report for default#script-build;0.1-SNAPSHOT compile produced in /home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/script/project/target/resolution-cache/reports/default-script-build-compile.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#script-build;0.1-SNAPSHOT runtime produced in /home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/script/project/target/resolution-cache/reports/default-script-build-runtime.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#script-build;0.1-SNAPSHOT test produced in /home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/script/project/target/resolution-cache/reports/default-script-build-test.xml[0m
@@ -6023,5 +6023,5 @@
 [0m[[0mdebug[0m] [0m	report for default#script-build;0.1-SNAPSHOT docs produced in /home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/script/project/target/resolution-cache/reports/default-script-build-docs.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#script-build;0.1-SNAPSHOT pom produced in /home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/script/project/target/resolution-cache/reports/default-script-build-pom.xml[0m
 [0m[[0mdebug[0m] [0m	report for default#script-build;0.1-SNAPSHOT scala-tool produced in /home/etarazona/Telecom_Bretagne/2do_Semestre/Stage_Ete/Projet/scala_spark_4_sec/Code_Hadoop_Pcap/script/project/target/resolution-cache/reports/default-script-build-scala-tool.xml[0m
-[0m[[0mdebug[0m] [0m	resolve done (1887ms resolve - 54ms download)[0m
+[0m[[0mdebug[0m] [0m	resolve done (2826ms resolve - 54ms download)[0m
 [0m[[0minfo[0m] [0mDone updating.[0m
